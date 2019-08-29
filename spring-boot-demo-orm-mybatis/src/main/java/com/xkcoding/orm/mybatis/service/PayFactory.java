@@ -14,7 +14,7 @@ import static java.util.stream.Collectors.toMap;
 public class PayFactory {
 
     private static PayFactory payFactory = new PayFactory();
-    private static Map<String, Class<?>> payMap = new HashMap<>();
+    private static Map<String, Pay> payMap = new HashMap<>();
 
 
     private PayFactory(){
@@ -24,12 +24,19 @@ public class PayFactory {
     static {
         Reflections reflections = new Reflections("com.xkcoding.orm.mybatis.service.impl");
         Set<Class<?>> classSet = reflections.getTypesAnnotatedWith(PayNote.class);
-        payMap = classSet.stream().collect(toMap(t -> t.getAnnotation(PayNote.class).value(), t -> (Class) t));
+        payMap = classSet.stream().collect(toMap(t -> t.getAnnotation(PayNote.class).value(), t -> {
+            Pay pay = null;
+            try {
+                pay =  (Pay) t.newInstance();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return pay;
+        }));
     }
 
-    public Pay createPay(String payId) throws Exception{
-        Class<?> aClass = payMap.get(payId);
-        return (Pay) aClass.newInstance();
+    public Pay createPay(String payId){
+        return payMap.get(payId);
     }
 
     public static PayFactory newInstance(){

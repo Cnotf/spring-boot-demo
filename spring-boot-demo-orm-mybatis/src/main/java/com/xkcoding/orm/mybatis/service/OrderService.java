@@ -16,6 +16,7 @@ public class OrderService {
 
         try {
             pay = PayFactory.newInstance().createPay(payId);
+            System.out.println(pay);
         } catch (Exception e) {
             e.printStackTrace();
         }
